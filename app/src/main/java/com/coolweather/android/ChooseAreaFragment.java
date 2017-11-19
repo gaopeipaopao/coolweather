@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -206,7 +207,7 @@ public class ChooseAreaFragment extends Fragment {
     private void queryCounties() {
         titleText.setText(selectedCity.getCityName());
         backButton.setVisibility(View.VISIBLE);
-        countyList=DataSupport.where("cityid=?",String.valueOf(selectedCity.getCityCode())).find(County.class);
+        countyList=DataSupport.where("cityid= ?",String.valueOf(selectedCity.getCityCode())).find(County.class);
         if(countyList.size()>0){
             dataList.clear();
             for(County county:countyList){
@@ -242,6 +243,7 @@ public class ChooseAreaFragment extends Fragment {
             int provinceCode=selsctedProvince.getProvinceCode();
             String address="http://guilin.tech/api/china"+provinceCode;
             queryFromServer(address,"city");
+            //Log.d("aaaa", "dsckld");
         }
     }
 }
