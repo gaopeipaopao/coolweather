@@ -98,13 +98,22 @@ public class ChooseAreaFragment extends Fragment {
                     queryCities();
                 }else if(currentLevel==LEVEL_CITY){
                     selectedCity=cityList.get(position);
+                    Log.d("xzzzzzzz", "onItemClick: ");
                     queryCounties();
                 }else if(currentLevel==LEVEL_COUNTY){
                     String weatherId=countyList.get(position).getWeatherId();
-                    Intent intent=new Intent(getActivity(),WeatherActivity.class);
-                    intent.putExtra("weather_id",weatherId);
-                    startActivity(intent);
-                    getActivity().finish();
+                    if(getActivity() instanceof  MainActivity){
+                        Intent intent=new Intent(getActivity(),WeatherActivity.class);
+                        intent.putExtra("weather_id",weatherId);
+                        startActivity(intent);
+                        getActivity().finish();
+                    }else if(getActivity() instanceof  WeatherActivity){
+                        WeatherActivity activity=(WeatherActivity)getActivity();
+                        activity.drawerLayout.closeDrawers();
+                        activity.swipeRefresh.setRefreshing(true);
+                        activity.requestWeather(weatherId);
+                    }
+
                 }
             }
         });
@@ -146,7 +155,7 @@ public class ChooseAreaFragment extends Fragment {
      * 根据传入的地址和类型 从服务器上查询省市县数据
      */
     private void queryFromServer(String address,final String type) {
-       // Log.d("ddddddddd", "queryFromServer: pppppp");
+        Log.d("ddddddddd", "queryFromServer: pppppp");
         showProgressDialog();
         HttpUtil.sendOkHttpRequest(address, new Callback() {
             @Override
@@ -166,12 +175,13 @@ public class ChooseAreaFragment extends Fragment {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseText=response.body().string();
-               // Log.d("eeeeeeee", "onResponse: ");
+                Log.d("eeeeeeee", "onResponse: "+responseText);
                 boolean result=false;
                 if("province".equals(type)){
                     result= Utility.handleProvinceResponse(responseText);
                 }else if("city".equals(type)){
                     result=Utility.handleCityResponse(responseText,selsctedProvince.getId());
+                    Log.d("lllllll", "onResponse: ");
                 }else if("county".equals(type)){
                     result=Utility.handleCountyResponse(responseText,selectedCity.getId());
                    // Log.d("fffffff", "onResponse: ");
@@ -184,9 +194,10 @@ public class ChooseAreaFragment extends Fragment {
                             if ("province".equals(type)) {
                                 queryProvinces();
                             }else if("city".equals(type)){
+                                Log.d("kkkkkkk", "run: ");
                                 queryCities();
                             }else if("county".equals(type)){
-                                //Log.d("iiiiii", "run: ");
+                                Log.d("iiiiii", "run: ");
                                 queryCounties();
                             }
                         }
@@ -256,9 +267,10 @@ public class ChooseAreaFragment extends Fragment {
             currentLevel=LEVEL_CITY;
         }else {
             int provinceCode=selsctedProvince.getProvinceCode();
+            Log.d("mmmmmmmm", "queryCities: "+provinceCode);
             String address="http://guolin.tech/api/china/"+provinceCode;
             queryFromServer(address,"city");
-            //Log.d("aaaa", "dsckld");
+            Log.d("aaaa", "dsckld");
         }
     }
 }
